@@ -1,0 +1,371 @@
+{
+  "info": {
+    "_postman_id": "a7c3e1d0-8b4f-4c21-9e6a-2d5f8b1c4a90",
+    "name": "Real Estate AI Agent",
+    "description": "Postman collection for Madlan Deal Valuation & Opportunity Evaluator.\n\nBase URL default: `http://localhost:3001`\n\n**Endpoints**\n- `GET /health` — liveness + Redis/Ollama status\n- `GET /api/deals` — paginated cleaned transactions\n- `POST /api/deals/upload` — multipart CSV ingest\n- `GET /api/metrics` — global + per-neighborhood calculated metrics\n- `GET /api/metrics/neighborhoods/:name` — neighborhood rollup + street breakdown\n- `POST /api/insights/evaluate` — stats + Hebrew insight (`dealId` or `neighborhood`)\n\nSample corpus neighborhoods: רמת אביב, הצפון הישן. Sample dealId: TLV-001.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001"
+    },
+    {
+      "key": "neighborhood",
+      "value": "רמת אביב"
+    },
+    {
+      "key": "street",
+      "value": "ברודצקי"
+    },
+    {
+      "key": "dealId",
+      "value": "TLV-001"
+    },
+    {
+      "key": "page",
+      "value": "1"
+    },
+    {
+      "key": "limit",
+      "value": "25"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Liveness probe with Redis/Ollama status, loaded deal count, model name, LLM timeout, and uptime."
+          },
+          "response": [
+            {
+              "name": "OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/health",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["health"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"real-estate-ai-agent\",\n  \"dealsLoaded\": 45,\n  \"redis\": true,\n  \"ollama\": true,\n  \"model\": \"llama3:8b\",\n  \"llmTimeoutMs\": 4000,\n  \"uptimeSec\": 12\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Deals",
+      "item": [
+        {
+          "name": "GET Deals (paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/deals?page={{page}}&limit={{limit}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "deals"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "{{page}}",
+                  "description": "1-based page (default 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "description": "Page size, 1–100 (default 25)"
+                }
+              ]
+            },
+            "description": "List cleaned transactions with pagination. Optional filters: `neighborhood`, `street`."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Deals by neighborhood",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/deals?neighborhood={{neighborhood}}&page={{page}}&limit={{limit}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "deals"],
+              "query": [
+                {
+                  "key": "neighborhood",
+                  "value": "{{neighborhood}}"
+                },
+                {
+                  "key": "page",
+                  "value": "{{page}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}"
+                }
+              ]
+            },
+            "description": "Filter cleaned deals by neighborhood (case-insensitive exact match)."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Deals by street",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/deals?street={{street}}&page={{page}}&limit={{limit}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "deals"],
+              "query": [
+                {
+                  "key": "street",
+                  "value": "{{street}}"
+                },
+                {
+                  "key": "page",
+                  "value": "{{page}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}"
+                }
+              ]
+            },
+            "description": "Filter cleaned deals by street (case-insensitive exact match)."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Deals by neighborhood and street",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/deals?neighborhood={{neighborhood}}&street={{street}}&page={{page}}&limit={{limit}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "deals"],
+              "query": [
+                {
+                  "key": "neighborhood",
+                  "value": "{{neighborhood}}"
+                },
+                {
+                  "key": "street",
+                  "value": "{{street}}"
+                },
+                {
+                  "key": "page",
+                  "value": "{{page}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}"
+                }
+              ]
+            },
+            "description": "Combine neighborhood and street filters."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Upload CSV",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "CSV field name must be `file`. Use backend/src/data/sample-deals.csv. Max 8MB. Replaces the in-memory corpus and busts stats cache."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/deals/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "deals", "upload"]
+            },
+            "description": "Multipart upload. Field: `file` (CSV).\n\nHeaders (English, Hebrew aliases in parentheses):\n`dealId` (מזהה), `date` (תאריך), `city` (עיר), `neighborhood` (שכונה), `street` (רחוב), `rooms` (חדרים), `floor` (קומה), `sqm` (שטח), `priceNis` (מחיר), `propertyType` (סוג_נכס), `yearBuilt` (שנת_בניה)\n\nSelect a file in Postman Body → form-data before sending. Returns `201` with `{ message, count, dropped }`."
+          },
+          "response": [
+            {
+              "name": "Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/deals/upload",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "deals", "upload"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"הקובץ נטען בהצלחה\",\n  \"count\": 45,\n  \"dropped\": 0\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Metrics",
+      "item": [
+        {
+          "name": "GET Global metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/metrics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "metrics"]
+            },
+            "description": "Portfolio-wide calculated metrics (never LLM-guessed): deal counts, price/PPSQM summaries, CAGR, per-neighborhood rollups."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Neighborhood metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/metrics/neighborhoods/{{neighborhood}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "metrics", "neighborhoods", "{{neighborhood}}"]
+            },
+            "description": "Neighborhood rollup + street breakdown. Path param is the neighborhood name (e.g. רמת אביב, הצפון הישן). Returns 404 if not found."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Insights",
+      "item": [
+        {
+          "name": "POST Evaluate by dealId",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dealId\": \"{{dealId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/insights/evaluate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "insights", "evaluate"]
+            },
+            "description": "Evaluate a specific deal. Body must include `dealId` and/or `neighborhood`.\n\nResponse always includes `metricsSource: \"calculated\"` and `insightSource: \"llm\" | \"fallback\"` plus Hebrew narrative (`summary`, `verdict`, `pros`, `cons`, `risks`, `buyerTips`)."
+          },
+          "response": [
+            {
+              "name": "OK (example shape)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"dealId\": \"TLV-001\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/insights/evaluate",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "insights", "evaluate"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"metricsSource\": \"calculated\",\n  \"insightSource\": \"llm\",\n  \"fallbackUsed\": false,\n  \"cached\": false,\n  \"generatedAt\": \"2026-09-07T15:00:00.000Z\",\n  \"subject\": {\n    \"dealId\": \"TLV-001\",\n    \"neighborhood\": \"רמת אביב\",\n    \"city\": \"תל אביב\"\n  },\n  \"stats\": {},\n  \"insight\": {\n    \"summary\": \"...\",\n    \"opportunityScore\": 72,\n    \"verdict\": \"buy\",\n    \"pros\": [],\n    \"cons\": [],\n    \"risks\": [],\n    \"buyerTips\": [],\n    \"marketNarrative\": \"...\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST Evaluate by neighborhood",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"neighborhood\": \"{{neighborhood}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/insights/evaluate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "insights", "evaluate"]
+            },
+            "description": "Evaluate a neighborhood (no specific deal). Body: `{ \"neighborhood\": \"רמת אביב\" }`."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

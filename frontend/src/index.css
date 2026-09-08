@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 500px at 100% -10%, rgba(31, 107, 74, 0.14), transparent 55%),
+    radial-gradient(900px 400px at -10% 110%, rgba(196, 106, 47, 0.12), transparent 50%),
+    #f3eee4;
+  color: #17211c;
+  font-family: Heebo, system-ui, sans-serif;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}

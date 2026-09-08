@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+.env
+*.log
+.DS_Store
+.vite/
+uploads/
+*.tsbuildinfo
+frontend/dist/
+backend/dist/
+.idea/
+.vscode/
